@@ -1,59 +1,45 @@
-export type NewsType = 'news' | 'twitter' | 'alert' | 'authorized';
-
 export interface NewsItem {
     _id: string;
     title: string;
     body?: string;
     time: number;
-    type?: NewsType;
+    type?: 'news' | 'twitter' | 'alert';
     source?: string;
-    source_handle?: string;        // @handle for Twitter sources
-    icon?: string;
-    link?: string;
-    image?: string;
-    url?: string;
+    source_handle?: string;
+    sentiment?: 'positive' | 'negative' | 'neutral';
+    coins?: string[];
     info?: {
         embedded_tweet?: EmbeddedTweet;
-        [key: string]: unknown;
     };
-    scraped_time?: number;
-    sentiment?: 'positive' | 'negative' | 'neutral';
 }
 
 export interface EmbeddedTweet {
-    title: string;
-    body: string;
-    image?: string;
-    url?: string;
+    id: string;
+    text: string;
+    author_name: string;
+    author_handle: string;
+    author_avatar?: string;
+    created_at: string;
 }
 
 export interface SentimentData {
-    type: 'ai_sentiment';
     news_id: string;
-    news_time: number;
     sentiment: 'positive' | 'negative' | 'neutral';
+    confidence?: number;
 }
 
 export interface TradingVolumeAlert {
     type: 'trading_volume_alert';
     title: string;
     coin: string;
-    [key: string]: unknown;
+    volume_change: number;
+    time: number;
 }
 
-export interface CoinConfig {
-    symbol: string;
-    price_change_percent?: number;
-}
-
-export interface TradingConfig {
-    coins: CoinConfig[];
-    amount_presets: number[];
-}
-
-export interface AuthorizedMessage {
-    type: 'authorized';
-    exchange_id: string;
-}
-
-export type WebSocketMessage = NewsItem | SentimentData | TradingVolumeAlert | AuthorizedMessage;
+export type WebSocketMessage =
+    | { type: 'auth_success'; exchange_id: string }
+    | { type: 'auth_error'; error: string; code: number }
+    | { type: 'news'; data: NewsItem }
+    | { type: 'ai_sentiment'; news_id: string; sentiment: string }
+    | { type: 'trading_volume_alert' } & TradingVolumeAlert
+    | { type: 'pong' };

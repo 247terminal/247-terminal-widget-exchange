@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Demo - 247 Terminal Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00dcfa;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            background: #1a1a1a;
+        }
+
+        .nav-link.active {
+            color: #fff;
+            background: #1a1a1a;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-action {
+            padding: 8px 16px;
+            color: #888;
+            text-decoration: none;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-action:hover {
+            color: #fff;
+        }
+
+        .balance-pill {
+            background: #1a1a1a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #fff;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        .chart-section {
+            flex: 1;
+            padding: 24px;
+            background: #0a0a0a;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+
+        .asset-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .asset-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f7931a, #ffab40);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .asset-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .asset-symbol {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .price-display {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .price-change {
+            font-size: 14px;
+            color: #22c55e;
+            margin-bottom: 24px;
+        }
+
+        .price-change.negative {
+            color: #ef4444;
+        }
+
+        .chart-container {
+            background: #111;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder {
+            position: absolute;
+            inset: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, #22c55e, #16a34a);
+            border-radius: 2px 2px 0 0;
+            opacity: 0.8;
+        }
+
+        .chart-bar.red {
+            background: linear-gradient(to top, #ef4444, #dc2626);
+        }
+
+        .time-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .time-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #888;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-btn:hover, .time-btn.active {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #444;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 48px;
+            padding: 20px;
+            background: #111;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .about-section {
+            padding: 20px;
+            background: #111;
+            border-radius: 12px;
+        }
+
+        .about-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .about-text {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        .widget-section {
+            width: 380px;
+            min-width: 380px;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .widget-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #fff;
+        }
+
+        .widget-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .widget-container {
+            flex: 1;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .widget-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .widget-section * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .widget-section *::-webkit-scrollbar {
+            display: none;
+        }
+
+        #terminal-widget {
+            height: 100%;
+            width: 100%;
+        }
+
+        .widget-footer {
+            padding: 16px 24px;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .alert-icon {
+            width: 32px;
+            height: 32px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+
+        .alert-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .widget-section {
+                width: 100%;
+                min-width: 100%;
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo">Exchange</div>
+            <div class="nav-links">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link active">Trade</a>
+                <a href="#" class="nav-link">Stake</a>
+                <a href="#" class="nav-link">Portfolio</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="nav-action">Derivatives</a>
+            <div class="balance-pill">$5,240.00</div>
+            <a href="#" class="nav-action">Transfer</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="chart-section">
+            <a href="#" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+
+            <div class="asset-header">
+                <div class="asset-icon">B</div>
+                <div>
+                    <div class="asset-name">Bitcoin</div>
+                    <div class="asset-symbol">BTC</div>
+                </div>
+            </div>
+
+            <div class="price-display">$141,046.18</div>
+            <div class="price-change">+$643.78 (+0.46%) today</div>
+
+            <div class="chart-container">
+                <div class="chart-placeholder" id="chart">
+                </div>
+            </div>
+
+            <div class="time-selector">
+                <button class="time-btn">1H</button>
+                <button class="time-btn active">1D</button>
+                <button class="time-btn">1W</button>
+                <button class="time-btn">1M</button>
+                <button class="time-btn">1Y</button>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-label">Quantity</span>
+                    <span class="stat-value">0.0234 BTC</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Value</span>
+                    <span class="stat-value">$3,300.48</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Average buy price</span>
+                    <span class="stat-value">$98,420.00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Trade allocation</span>
+                    <span class="stat-value">12.4%</span>
+                </div>
+            </div>
+
+            <div class="about-section">
+                <div class="about-title">About</div>
+                <p class="about-text">
+                    Bitcoin is a decentralized digital currency that can be transferred on the peer-to-peer bitcoin network. Bitcoin transactions are verified by network nodes through cryptography and recorded in a public distributed ledger called a blockchain.
+                </p>
+            </div>
+        </section>
+
+        <aside class="widget-section">
+            <div class="widget-container">
+                <div id="terminal-widget"></div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const chart = document.getElementById('chart');
+        const bars = 60;
+        for (let i = 0; i < bars; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'chart-bar' + (Math.random() > 0.5 ? '' : ' red');
+            bar.style.height = (20 + Math.random() * 80) + '%';
+            chart.appendChild(bar);
+        }
+
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        window.addEventListener('247terminal:trade', (event) => {
+            console.log('Trade Event Received:', event.detail);
+            alert(`Trade signal received!\n\nTrade ID: ${event.detail.trade_id}\n\nThe exchange would now verify the JWT and execute the trade.`);
+        });
+    </script>
+
+    <script src="./dist/widget.js"></script>
+    <script>
+        window.addEventListener('load', async () => {
+            if (typeof ExchangeWidget === 'undefined') {
+                document.getElementById('terminal-widget').innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #666;">
+                        <p style="margin-bottom: 12px;">Widget not loaded</p>
+                        <p style="font-size: 12px;">Run <code>pnpm build</code> first</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const widget = await ExchangeWidget.init({
+                    container_selector: '#terminal-widget',
+                    api_key: 'wk_test_abc123def456',
+                    exchange_user_id: 'demo-user-001',
+                });
+                console.log('Widget initialized:', widget);
+            } catch (error) {
+                console.error('Widget initialization failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>

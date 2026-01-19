@@ -118,34 +118,14 @@ Listen for trade events from the widget:
 
 ```javascript
 window.addEventListener('247terminal:trade', (event) => {
-    const {
-        token,        // JWT signed by 247 Terminal
-        trade_id,     // Unique trade identifier
-        coin,         // "BTC", "ETH", "SOL", etc.
-        side,         // "long" or "short"
-        amount_usd,   // Trade amount in USD
-        news_id,      // Associated news item ID
-        is_sandbox    // Boolean - true if sandbox mode
-    } = event.detail;
-
-    // Skip execution for sandbox trades (optional)
-    if (is_sandbox) {
-        console.log('Sandbox trade:', { trade_id, coin, side, amount_usd });
-        return;
-    }
+    const { token, trade_id } = event.detail;
 
     // Send token to your backend for verification and execution
+    // Trade details (coin, side, amount) are extracted from the verified JWT
     fetch('/api/execute-trade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            token,
-            trade_id,
-            coin,
-            side,
-            amount_usd,
-            news_id
-        })
+        body: JSON.stringify({ token, trade_id })
     });
 });
 ```
@@ -156,11 +136,8 @@ window.addEventListener('247terminal:trade', (event) => {
 |-------|------|-------------|
 | `token` | `string` | JWT signed by 247 Terminal backend |
 | `trade_id` | `string` | Unique identifier for this trade |
-| `coin` | `string` | Cryptocurrency symbol (BTC, ETH, SOL) |
-| `side` | `string` | Trade direction: "long" or "short" |
-| `amount_usd` | `number` | Trade amount in USD |
-| `news_id` | `string` | ID of the news item that triggered the trade |
-| `is_sandbox` | `boolean` | True if this is a sandbox/test trade |
+
+**Security Note:** Trade details (coin, side, amount, etc.) are intentionally excluded from the event payload for security. All trade parameters must be extracted from the verified JWT token on your backend to prevent tampering.
 
 ### JWT Token Payload Structure
 
@@ -243,8 +220,15 @@ app.post('/api/execute-trade', async (req, res) => {
         amount_usd: amount
     });
 
-    // 4. Return result to frontend
-    res.json({ success: true, trade_id, result });
+    // 4. Return result to frontend (include trade details for UI feedback)
+    res.json({
+        success: true,
+        trade_id,
+        coin,
+        side,
+        amount,
+        result
+    });
 });
 ```
 
@@ -430,25 +414,21 @@ For integration support or to request API credentials:
             });
 
             window.addEventListener('247terminal:trade', async (event) => {
-                const { token, trade_id, coin, side, amount_usd, is_sandbox } = event.detail;
-
-                // Skip real execution for sandbox trades
-                if (is_sandbox) {
-                    show_notification(`Sandbox trade: ${side} ${coin} $${amount_usd}`);
-                    return;
-                }
+                const { token, trade_id } = event.detail;
 
                 try {
                     const response = await fetch('/api/execute-trade', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token, trade_id, coin, side, amount_usd })
+                        body: JSON.stringify({ token, trade_id })
                     });
 
+                    const result = await response.json();
+
                     if (response.ok) {
-                        show_notification('Trade executed successfully');
+                        show_notification(`Trade executed: ${result.side} ${result.coin} $${result.amount}`);
                     } else {
-                        show_notification('Trade failed', 'error');
+                        show_notification(result.error || 'Trade failed', 'error');
                     }
                 } catch (error) {
                     show_notification('Network error', 'error');
@@ -464,5 +444,5 @@ For integration support or to request API credentials:
 
 ---
 
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** January 2026

@@ -72,6 +72,12 @@ const NewsList = styled.div`
     flex: 1;
     overflow-y: auto;
     padding: ${({ theme }) => theme.spacing.md};
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 `;
 
 const EmptyState = styled.div`

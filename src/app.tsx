@@ -2,7 +2,6 @@ import { ThemeProvider } from 'styled-components';
 import { use_widget_store } from './store/widget_store';
 import { LoadingState } from './components/LoadingState';
 import { ErrorState } from './components/ErrorState';
-import { ConnectionStatus } from './components/ConnectionStatus';
 import { SandboxBanner } from './components/SandboxBanner';
 import { WidgetContainer } from './components/WidgetContainer';
 import { NewsFeed } from './features/news_feed/news_feed';
@@ -32,10 +31,7 @@ export function App() {
                 )}
 
                 {initialization_status === 'ready' && (
-                    <>
-                        <ConnectionStatus />
-                        <NewsFeed />
-                    </>
+                    <NewsFeed />
                 )}
             </WidgetContainer>
         </ThemeProvider>

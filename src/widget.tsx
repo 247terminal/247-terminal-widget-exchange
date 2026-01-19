@@ -1,4 +1,5 @@
 import { render } from 'preact';
+import { StyleSheetManager } from 'styled-components';
 import { App } from './app';
 import { initialize_widget, destroy_widget } from './services/initialization_service';
 
@@ -23,6 +24,12 @@ const ExchangeWidget = {
 
         const shadow_root = container.attachShadow({ mode: 'open' });
 
+        const style_container = document.createElement('div');
+        const app_container = document.createElement('div');
+        app_container.style.height = '100%';
+        shadow_root.appendChild(style_container);
+        shadow_root.appendChild(app_container);
+
         const success = await initialize_widget({
             api_key: widget_config.api_key,
             exchange_user_id: widget_config.exchange_user_id,
@@ -33,7 +40,12 @@ const ExchangeWidget = {
             return null;
         }
 
-        render(<App />, shadow_root);
+        render(
+            <StyleSheetManager target={style_container}>
+                <App />
+            </StyleSheetManager>,
+            app_container
+        );
 
         return {
             destroy: () => {

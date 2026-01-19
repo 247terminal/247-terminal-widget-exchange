@@ -34,10 +34,6 @@ async function execute_sandbox_trade(request: TradeRequest): Promise<TradeResult
     dispatch_trade_event({
         token: mock_token,
         trade_id: mock_trade_id,
-        coin: request.coin,
-        side: request.side,
-        amount_usd: request.amount_usd,
-        news_id: request.news_id,
         is_sandbox: true,
     });
 
@@ -60,7 +56,7 @@ async function execute_live_trade(request: TradeRequest): Promise<TradeResult> {
     const trade_params: TradeParams = {
         coin: request.coin,
         side: request.side,
-        amount_usd: request.amount_usd,
+        amount: request.amount_usd,
         news_id: request.news_id,
         timestamp: Date.now(),
     };
@@ -71,10 +67,6 @@ async function execute_live_trade(request: TradeRequest): Promise<TradeResult> {
     dispatch_trade_event({
         token: token_response.token,
         trade_id: token_response.trade_id,
-        coin: request.coin,
-        side: request.side,
-        amount_usd: request.amount_usd,
-        news_id: request.news_id,
     });
 
     return {

@@ -8,6 +8,7 @@ import { SettingsMenu } from '../../components/SettingsMenu';
 import { MoreIcon } from '../../components/icons';
 import type { NewsItem, TradingConfig } from '../../types/news';
 import config from '../../config/_index';
+import { execute_trade } from '../../services/trade_service';
 
 const Container = styled.div`
     display: flex;
@@ -108,8 +109,23 @@ export function NewsFeed({ on_trade_from_news }: NewsFeedProps) {
         };
     };
 
-    const handle_trade = (coin: string, amount: number, side: 'long' | 'short', news_id: string) => {
-        console.log('[NewsFeed] Trade executed:', { coin, amount, side, news_id });
+    const handle_trade = async (coin: string, amount: number, side: 'long' | 'short', news_id: string) => {
+        const result = await execute_trade({
+            coin,
+            amount_usd: amount,
+            side,
+            news_id,
+        });
+
+        if (!result.success) {
+            console.error('[news feed] trade failed: ', result.error);
+            return;
+        }
+
+        console.info('[news feed] trade dispatched', {
+            trade_id: result.trade_id,
+            is_sandbox: result.is_sandbox,
+        });
     };
 
     const toggle_settings = () => {

@@ -56,6 +56,10 @@ function DevLayout() {
     )
 }
 
+window.addEventListener('247terminal:trade', (event) => {
+    console.log('🔔 Trade Event Received:', (event as CustomEvent).detail);
+});
+
 initialize_widget({
     api_key: 'wk_test_abc123def456',
     exchange_user_id: 'test-user-001',

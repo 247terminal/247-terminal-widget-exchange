@@ -3,7 +3,7 @@ export type TradeSide = 'long' | 'short';
 export interface TradeParams {
     coin: string;
     side: TradeSide;
-    amount_usd: number;
+    amount: number;
     news_id: string;
     timestamp: number;
 }
@@ -27,10 +27,6 @@ export interface TradeTokenResponse {
 export interface TradeEventDetail {
     token: string;
     trade_id: string;
-    coin: string;
-    side: TradeSide;
-    amount_usd: number;
-    news_id: string;
     is_sandbox?: boolean;
 }
 

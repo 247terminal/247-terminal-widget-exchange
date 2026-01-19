@@ -1,15 +1,18 @@
 export interface NewsItem {
-    title: string;
-    body: string;
-    time: number;
-    icon: string;
-    link: string;
-    scrapedTime: number;
     _id?: string;
-    image?: string;
+    title: string;
+    body?: string;
+    time: number;
     type?: string;
-    coins?: string[];
+    source?: string;
+    icon?: string;
+    link?: string;
+    image?: string;
+    url?: string;
     info?: NewsItemInfo;
+    scraped_time?: number;
+    sentiment?: 'positive' | 'negative' | 'neutral';
+    coins?: string[];
 }
 
 export interface NewsItemInfo {
@@ -48,9 +51,14 @@ export interface SentimentData {
 export interface TradingVolumeAlert {
     type: 'trading_volume_alert';
     title: string;
-    coin: string;
-    volume_change: number;
+    body?: string;
     time: number;
+    link?: string;
+    icon?: string;
+    coin: string;
+    direction: 'LONG' | 'SHORT';
+    volume: number;
+    user_count: number;
 }
 
 export interface TradingConfig {

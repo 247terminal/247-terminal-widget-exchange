@@ -4,25 +4,10 @@ import { use_widget_store } from "../store/widget_store.ts";
 import { use_news_store } from "../store/news_store.ts";
 import { build_theme } from "../config/theme.ts";
 import config from "../config/_index.ts";
-import { mock_news_items, mock_sentiment_data } from "../mock_data.ts";
 
 interface InitOptions {
     api_key: string;
     exchange_user_id?: string;
-}
-
-function load_mock_data_for_development(news_store: ReturnType<typeof use_news_store.getState>): void {
-    setTimeout(() => {
-        news_store.set_connection_status(true);
-        mock_news_items.forEach((item, index) => {
-            setTimeout(() => {
-                news_store.add_news_item(item);
-            }, index * 100);
-        });
-        mock_sentiment_data.forEach((sentiment) => {
-            news_store.add_sentiment(sentiment);
-        });
-    }, 500);
 }
 
 export async function initialize_widget(options: InitOptions): Promise<boolean> {
@@ -63,10 +48,6 @@ export async function initialize_widget(options: InitOptions): Promise<boolean> 
             on_connection_change: (connected) => news_store.set_connection_status(connected),
             on_error: (error) => news_store.set_connection_error(error),
         });
-
-        if (config.environment.is_development) {
-            load_mock_data_for_development(news_store);
-        }
 
         widget_store.set_initialization_status('ready');
         

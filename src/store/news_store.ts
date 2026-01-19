@@ -39,10 +39,11 @@ export const use_news_store = create<NewsState & NewsActions>((set, get) => ({
         const raw = item as any;
         const normalized_item: NewsItem = {
             ...item,
-            body: item.body || raw.content,
-            time: item.time || (typeof raw.timestamp === 'string'
-                ? new Date(raw.timestamp).getTime()
-                : raw.timestamp),
+            body: item.body || raw.content || '',
+            time: typeof item.time === 'string'
+                ? new Date(item.time).getTime()
+                : (item.time || Date.now()),
+            scraped_time: item.scraped_time || raw.scrapedTime || Date.now(),
         };
 
         const updated = [normalized_item, ...state.news_items]
